@@ -2,13 +2,6 @@ package day02
 
 import helpers.parseInput
 
-@Suppress("EnumEntryName")
-private enum class Direction {
-    forward,
-    up,
-    down,
-}
-
 fun main() {
     val input = parseInput("/day02.txt")
     val movement = input.map { it.split(" ") }.map { Direction.valueOf(it[0]) to it[1].toInt() }
@@ -40,25 +33,27 @@ private fun part1(movement: List<Pair<Direction, Int>>): Int {
     return verticalPosition * horizontalPosition
 }
 
-private fun part2(movement: List<Pair<Direction, Int>>): Int {
-    var verticalPosition = 0
-    var horizontalPosition = 0
-    var aim = 0
-
-    movement.forEach { (direction, distance) ->
-        when(direction) {
-            Direction.up -> {
-                aim -= distance
-            }
-            Direction.down -> {
-                aim += distance
-            }
-            Direction.forward -> {
-                horizontalPosition += distance
-                verticalPosition += (aim * distance)
-            }
-        }
+private fun part2(movement: List<Pair<Direction, Int>>): Int = movement.fold(Submarine()) { sub, (dir, dist) ->
+    when (dir) {
+        Direction.up -> sub.copy(aim = sub.aim - dist)
+        Direction.down -> sub.copy(aim = sub.aim + dist)
+        Direction.forward -> sub.copy(vPos = sub.aim * dist, hPos = sub.hPos + dist)
     }
+}.let { sub -> sub.vPos * sub.hPos }
 
-    return verticalPosition * horizontalPosition
+@Suppress("EnumEntryName")
+private enum class Direction {
+    forward,
+    up,
+    down,
 }
+
+/**
+ * This class is not strictly required, but makes the part2-code easier
+ * to read compared to using a Triple<Int, Int, Int>
+ */
+private data class Submarine(
+    val vPos: Int = 0,
+    val hPos: Int = 0,
+    val aim: Int = 0
+)
